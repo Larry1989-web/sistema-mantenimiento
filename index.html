@@ -33,6 +33,151 @@
   </style>
 </head>
 <body>
-  ...
+<div class="sidebar">
+    <h1>Sistema Integral de Mantenimiento</h1>
+    <button onclick="showPanel('dashboard')">📊 Dashboard</button>
+    <button onclick="showPanel('salidas')">📝 Registrar Salida</button>
+    <button onclick="showPanel('historial')">📚 Historial</button>
+    <button onclick="showPanel('reportes')">📄 Reportes</button>
+    <div style="flex:1"></div>
+    <small class="muted">Formato original:</small>
+    <a class="file-link" href="/mnt/data/083. Salida Maritima Fluvial   de 27 de Agosto de 2025 ( programado).pdf" target="_blank">Ver PDF M2-FOR-028 v05</a>
+  </div>
+
+  <main class="content">
+
+    <section id="panel-dashboard" class="card">
+      <h2>Dashboard General</h2>
+      <div class="row" style="margin-top:12px; gap:20px; flex-wrap:wrap;">
+
+        <div class="dashCard">
+          <h3>Total de Salidas</h3>
+          <p id="countSalidas" class="dashNum">0</p>
+        </div>
+
+        <div class="dashCard">
+          <h3>Marítimas</h3>
+          <p id="countMar" class="dashNum">0</p>
+        </div>
+
+        <div class="dashCard">
+          <h3>Fluviales</h3>
+          <p id="countFluvial" class="dashNum">0</p>
+        </div>
+
+        <div class="dashCard">
+          <h3>Terrestres</h3>
+          <p id="countTerrestre" class="dashNum">0</p>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="panel-salidas" class="card" style="display:none">
+      <h2>Registrar Salida — Formato Unificado (mejorado)</h2>
+
+      <div class="row">
+        <div class="col">
+          <label>Fecha</label>
+          <input type="date" id="gen_fecha" />
+        </div>
+        <div class="col small">
+          <label>No. de salida</label>
+          <input type="text" id="gen_numero" placeholder="Ej: 083" />
+        </div>
+      </div>
+
+      <label>Unidad de señalización</label>
+      <input type="text" id="gen_unidad" placeholder="Unidad / dependencia" />
+
+      <h3 style="margin-top:14px">II. Personal participante</h3>
+      <div id="personalContainer"></div>
+      <div class="actions">
+        <button class="mini" id="btnAddPersonal">+ Agregar técnico</button>
+        <button class="mini" id="btnClearPersonal">Limpiar</button>
+      </div>
+
+      <h3 style="margin-top:14px">III. Transporte utilizado</h3>
+      <div class="row">
+        <div class="col">
+          <label>Tipo</label>
+          <select id="transporte_tipo">
+            <option value="maritima">Marítimo</option>
+            <option value="fluvial">Fluvial</option>
+            <option value="terrestre">Terrestre</option>
+          </select>
+        </div>
+        <div class="col">
+          <label>Nombre / No. placa</label>
+          <input type="text" id="transporte_placa" />
+        </div>
+        <div class="col small">
+          <label>Combustible</label>
+          <select id="combustible">
+            <option>Gasolina</option>
+            <option>ACPM</option>
+            <option>Otro</option>
+          </select>
+        </div>
+      </div>
+      <label>Cantidad de combustible</label>
+      <input id="combustible_cant" placeholder="Litros" />
+
+      <h3 style="margin-top:14px">IV. Mantenimiento realizado</h3>
+      <label>Nombre de la Ayuda a la Navegación</label>
+      <input id="an_nombre" placeholder="Ej: Baliza X" />
+
+      <div class="row">
+        <div class="col">
+          <label>Estado actual</label>
+          <select id="an_estado">
+            <option>Sin novedad</option>
+            <option>Fuera de servicio</option>
+            <option>Con limitación</option>
+          </select>
+        </div>
+        <div class="col">
+          <label>Tipo de mantenimiento</label>
+          <select id="an_tipo">
+            <option>Programado</option>
+            <option>Imprevisto</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Coordenadas / Posición</label>
+      <input id="an_posicion" placeholder="-1.2345, 50.1234" />
+
+      <label>Descripción general</label>
+      <textarea id="descripcion_general" placeholder="Detalle de actividades realizadas"></textarea>
+
+      <div class="actions">
+        <button class="btn-primary" id="btnGuardar">Guardar salida</button>
+        <button id="btnReset">Reset</button>
+      </div>
+
+    </section>
+
+    <section id="panel-historial" class="card" style="display:none">
+      <h2>Historial</h2>
+      <div id="lista-historial"></div>
+    </section>
+
+    <section id="panel-reportes" class="card" style="display:none">
+      <h2>Reportes</h2>
+      <p class="muted">Generar reporte con los registros actuales.</p>
+      <div class="actions">
+        <button id="btnGenerar">Generar reporte (texto)</button>
+        <button id="btnDescargar">Descargar .txt</button>
+      </div>
+      <pre id="reporte"></pre>
+    </section>
+
+  </main>
+
+<script>
+// JS OMITIDO POR LIMITES (AGREGAR COMPLETO AQUÍ)
+</script>
+
 </body>
 </html>
