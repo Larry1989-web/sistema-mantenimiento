@@ -1,143 +1,153 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema Integral de Mantenimiento</title>
+/* Sistema Integral de Mantenimiento - app.js */
 
-  <link rel="stylesheet" href="styles.css">
-</head>
+// --- Storage ---
+const STORAGE_KEY = "sim_salidas_v1";
+let salidas = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+let personalCount = 0;
 
-<body>
+// --- Paneles ---
+function showPanel(nombre) {
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+  document.getElementById("panel-" + nombre).classList.add("active");
+  actualizarDashboard();
+  renderHistorial();
+}
 
-  <div class="sidebar">
-    <h1>Sistema Integral de Mantenimiento</h1>
+// --- Personal dinámico ---
+function addPersonal() {
+  personalCount++;
+  const cont = document.getElementById("personalContainer");
 
-    <button onclick="showPanel('dashboard')">📊 Dashboard</button>
-    <button onclick="showPanel('salidas')">📝 Registrar Salida</button>
-    <button onclick="showPanel('historial')">📚 Historial</button>
-    <button onclick="showPanel('reportes')">📄 Reportes</button>
+  const div = document.createElement("div");
+  div.className = "personal-block";
+  div.dataset.idx = personalCount;
 
-    <div class="footer">
-      <small>Formato original:</small><br>
-      <a href="083.pdf" target="_blank">Ver PDF</a>
-    </div>
-  </div>
+  div.innerHTML = `
+    <strong>Técnico #${personalCount}</strong>
+    <label>Nombre</label>
+    <input class="pers_nombre" />
 
-  <main class="content">
+    <label>Grado</label>
+    <input class="pers_grado" />
 
-    <!-- DASHBOARD -->
-    <section id="panel-dashboard" class="panel active">
-      <h2>Dashboard General</h2>
+    <label>Rol</label>
+    <input class="pers_rol" />
 
-      <div class="dash-grid">
-        <div class="dashCard">
-          <h3>Total de Salidas</h3>
-          <p id="countSalidas" class="dashNum">0</p>
-        </div>
+    <button onclick="removePersonal(${personalCount})">Eliminar</button>
+  `;
 
-        <div class="dashCard">
-          <h3>Marítimas</h3>
-          <p id="countMar" class="dashNum">0</p>
-        </div>
+  cont.appendChild(div);
+}
 
-        <div class="dashCard">
-          <h3>Fluviales</h3>
-          <p id="countFluvial" class="dashNum">0</p>
-        </div>
+function removePersonal(idx) {
+  const nodo = document.querySelector(`.personal-block[data-idx="${idx}"]`);
+  if (nodo) nodo.remove();
+}
 
-        <div class="dashCard">
-          <h3>Terrestres</h3>
-          <p id="countTerrestre" class="dashNum">0</p>
-        </div>
-      </div>
-    </section>
+function clearPersonal() {
+  document.getElementById("personalContainer").innerHTML = "";
+  personalCount = 0;
+}
 
-    <!-- REGISTRAR SALIDA -->
-    <section id="panel-salidas" class="panel">
+// --- Guardar salida ---
+function guardarSalida() {
+  const salida = {
+    fecha: document.getElementById("gen_fecha").value,
+    numero: document.getElementById("gen_numero").value,
+    unidad: document.getElementById("gen_unidad").value,
+    transporte: document.getElementById("transporte_tipo").value,
+    placa: document.getElementById("transporte_placa").value,
+    combustible: document.getElementById("combustible").value,
+    combustibleCant: document.getElementById("combustible_cant").value,
+    ayuda: document.getElementById("an_nombre").value,
+    estado: document.getElementById("an_estado").value,
+    tipo: document.getElementById("an_tipo").value,
+    posicion: document.getElementById("an_posicion").value,
+    descripcion: document.getElementById("descripcion_general").value,
+    personal: []
+  };
 
-      <h2>Registrar Salida</h2>
+  // Personal
+  document.querySelectorAll(".personal-block").forEach(b => {
+    const p = {
+      nombre: b.querySelector(".pers_nombre").value,
+      grado: b.querySelector(".pers_grado").value,
+      rol: b.querySelector(".pers_rol").value
+    };
+    salida.personal.push(p);
+  });
 
-      <label>Fecha</label>
-      <input type="date" id="gen_fecha">
+  if (!salida.ayuda) {
+    alert("Debes ingresar la ayuda a la navegación.");
+    return;
+  }
 
-      <label>No. de salida</label>
-      <input type="text" id="gen_numero">
+  salidas.push(salida);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(salidas));
 
-      <label>Unidad</label>
-      <input type="text" id="gen_unidad">
+  alert("Salida registrada correctamente.");
+  renderHistorial();
+  actualizarDashboard();
+}
 
-      <h3>Personal participante</h3>
-      <div id="personalContainer"></div>
+// --- Historial ---
+function renderHistorial() {
+  const cont = document.getElementById("lista-historial");
+  cont.innerHTML = "";
 
-      <button id="btnAddPersonal">+ Agregar técnico</button>
-      <button id="btnClearPersonal">Limpiar personal</button>
+  if (salidas.length === 0) {
+    cont.innerHTML = "<p>No hay registros.</p>";
+    return;
+  }
 
-      <h3>Transporte</h3>
-      <label>Tipo</label>
-      <select id="transporte_tipo">
-        <option value="maritima">Marítimo</option>
-        <option value="fluvial">Fluvial</option>
-        <option value="terrestre">Terrestre</option>
-      </select>
+  salidas.forEach((s, idx) => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <strong>Salida #${idx + 1}</strong><br>
+      ${s.fecha} - ${s.transporte}<br>
+      <strong>${s.ayuda}</strong><br>
+      <small>${s.descripcion.substring(0, 50)}...</small>
+    `;
+    cont.appendChild(div);
+  });
+}
 
-      <label>Placa / Nombre</label>
-      <input type="text" id="transporte_placa">
+// --- Dashboard ---
+function actualizarDashboard() {
+  document.getElementById("countSalidas").innerText = salidas.length;
+  document.getElementById("countMar").innerText = salidas.filter(s => s.transporte === "maritima").length;
+  document.getElementById("countFluvial").innerText = salidas.filter(s => s.transporte === "fluvial").length;
+  document.getElementById("countTerrestre").innerText = salidas.filter(s => s.transporte === "terrestre").length;
+}
 
-      <label>Combustible</label>
-      <select id="combustible">
-        <option>Gasolina</option>
-        <option>ACPM</option>
-      </select>
+// --- Reportes ---
+function generarReporte() {
+  let r = "REPORTE DE SALIDAS\n\n";
 
-      <label>Cantidad</label>
-      <input type="text" id="combustible_cant">
+  salidas.forEach((s, i) => {
+    r += `Salida #${i + 1}\nFecha: ${s.fecha}\nAyuda: ${s.ayuda}\nDescripción: ${s.descripcion}\n\n`;
+  });
 
-      <h3>Mantenimiento</h3>
-      <label>Ayuda a la navegación</label>
-      <input type="text" id="an_nombre">
+  document.getElementById("reporte").innerText = r;
+}
 
-      <label>Estado</label>
-      <select id="an_estado">
-        <option>Sin novedad</option>
-        <option>Fuera de servicio</option>
-        <option>Con limitación</option>
-      </select>
+function descargarReporte() {
+  const text = document.getElementById("reporte").innerText;
+  const blob = new Blob([text], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "reporte.txt";
+  link.click();
+}
 
-      <label>Tipo</label>
-      <select id="an_tipo">
-        <option>Programado</option>
-        <option>Imprevisto</option>
-      </select>
+// --- Eventos ---
+document.getElementById("btnAddPersonal").onclick = addPersonal;
+document.getElementById("btnClearPersonal").onclick = clearPersonal;
+document.getElementById("btnGuardar").onclick = guardarSalida;
+document.getElementById("btnGenerar").onclick = generarReporte;
+document.getElementById("btnDescargar").onclick = descargarReporte;
 
-      <label>Posición</label>
-      <input type="text" id="an_posicion">
+showPanel("dashboard");
 
-      <label>Descripción</label>
-      <textarea id="descripcion_general"></textarea>
-
-      <button id="btnGuardar" class="primary">Guardar salida</button>
-      <button id="btnReset">Reset</button>
-
-    </section>
-
-    <!-- HISTORIAL -->
-    <section id="panel-historial" class="panel">
-      <h2>Historial de salidas</h2>
-      <div id="lista-historial"></div>
-    </section>
-
-    <!-- REPORTES -->
-    <section id="panel-reportes" class="panel">
-      <h2>Reportes</h2>
-      <button id="btnGenerar">Generar reporte</button>
-      <button id="btnDescargar">Descargar .txt</button>
-      <pre id="reporte"></pre>
-    </section>
-
-  </main>
-
-  <script src="app.js"></script>
-</body>
-</html>
 
